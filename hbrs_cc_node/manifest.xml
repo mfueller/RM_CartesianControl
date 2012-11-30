@@ -1,0 +1,21 @@
+<package>
+  <description brief="hbrs_cc_node">
+
+     hbrs_cc_node
+
+  </description>
+  <author>marc</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/hbrs_cc_node</url>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="std_srvs"/>
+  <depend package="brics_actuator"/>
+  <depend package="joy"/>
+  <depend package="geometry_msgs" />
+  
+
+</package>
+
+
