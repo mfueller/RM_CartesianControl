@@ -1,0 +1,2 @@
+/usr/bin/ar cr libcc_library.a  CMakeFiles/cc_library.dir/common/src/cc_library.o
+/usr/bin/ranlib libcc_library.a

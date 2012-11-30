@@ -50,5 +50,3 @@ std::vector<double> MyFunctionalClass::getJointVelocities()
 	std::vector<double> my_data(5);
     return my_data;
 }
-
-
