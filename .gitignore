@@ -1,5 +1,7 @@
 # Build and Release Folders
 bin/
+build/
+lib/
 bin-debug/
 bin-release/
 
