@@ -14,7 +14,6 @@
 #include "my_functional_class.h"
 
 
-
 bool serviceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
     std::cout << "service call triggered" << std::endl;    

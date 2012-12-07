@@ -3,4 +3,7 @@
     <node pkg="hbrs_cc_node" type="cc_node" name="hbrs_cc_node" output="screen">
         <param name="my_param" type="double" value="1.5" />
     </node>
+    <node pkg="hbrs_joystick_wrapper" type="teleop_joy_wrapper" name="hbrs_joystick_wrapper" output="screen">
+		
+    </node>
 </launch>

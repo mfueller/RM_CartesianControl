@@ -1,22 +1,18 @@
 <package>
-  <description brief="hbrs_cc_node">
+  <description brief="hbrs_joystick_wrapper">
 
-     hbrs_cc_node
+     hbrs_joystick_wrapper
 
   </description>
   <author>marc</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/hbrs_cc_node</url>
+  <url>http://ros.org/wiki/hbrs_joystick_wrapper</url>
   <depend package="roscpp"/>
   <depend package="sensor_msgs"/>
-  <depend package="std_srvs"/>
   <depend package="brics_actuator"/>
   <depend package="joy"/>
-  <depend package="geometry_msgs" />
-  <depend package="hbrs_joystick_wrapper" />
-  
-
+   <depend package="geometry_msgs" />
 </package>
 
 
