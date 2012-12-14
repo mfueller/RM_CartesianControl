@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.4.6)
-project(CC_LIBRARY)
+project(HBRS_CC_LIBRARY)
 
 link_directories(/usr/local/lib /usr/local/include)
 
@@ -10,7 +10,7 @@ link_directories(/usr/local/lib /usr/local/include)
 #include (${PROJECT_SOURCE_DIR}/config/FindKDL.cmake)
 
 include_directories(${PROJECT_SOURCE_DIR}/common/include)
-add_library(cc_library common/src/cc_library.cpp)
+add_library(cc_library common/src/hbrs_cc_library.cpp)
 #add_executable(cc_library src/cc_library.cpp)
 #target_link_libraries(test orocos-kdl)
 

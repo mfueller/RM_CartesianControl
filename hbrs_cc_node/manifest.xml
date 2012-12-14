@@ -15,6 +15,7 @@
   <depend package="joy"/>
   <depend package="geometry_msgs" />
   <depend package="hbrs_joystick_wrapper" />
+  <depend package="robot_state_publisher" />
   
 
 </package>

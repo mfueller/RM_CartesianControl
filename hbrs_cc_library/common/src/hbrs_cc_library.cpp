@@ -12,7 +12,8 @@ Hbrs_cc_Library::~Hbrs_cc_Library()
     /* clean up here */
 }
 
-std::vector<double> Hbrs_cc_Library::getJointVelocities() {
+
+std::vector<double> Hbrs_cc_Library::getJointVelocity(Hbrs_twist) {
 	
 	std::vector<double> jointVelocities;
 	return jointVelocities;
