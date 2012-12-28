@@ -17,6 +17,12 @@ Hbrs_ik_solver::Hbrs_ik_solver()
     numberOfJoints = chain.getNrOfJoints();
     jointpositions = JntArray(numberOfJoints);
     jointAngle.assign(numberOfJoints,0.0);
+    
+    jointpositions(0) =  jointAngle.at(0) + (-169.0 * DEG_2_RAD);
+    jointpositions(1) =  jointAngle.at(1) + (-65.0 - 90.0) * DEG_2_RAD;
+    jointpositions(2) =  jointAngle.at(2) + 146.0 * DEG_2_RAD;
+    jointpositions(3) =  jointAngle.at(3) + (-102.5 - 90.0) * DEG_2_RAD;
+    jointpositions(4) =  jointAngle.at(4) + 167.0 * DEG_2_RAD;
 }
 
 Hbrs_ik_solver::~Hbrs_ik_solver()
@@ -26,32 +32,26 @@ Hbrs_ik_solver::~Hbrs_ik_solver()
  
 using namespace KDL;
  
-int Hbrs_ik_solver::fkSolver()
+void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity)
 {
+	KDL::Vector vel(transVel.at(0), transVel.at(1), transVel.at(2));
+	KDL::Vector rot(rotVel.at(0), rotVel.at(1), rotVel.at(2));
+	for (unsigned short i = 0; i < numberOfJoints; i++) {
+		jointpositions(i) = jointPosition.at(i);
+	}
+	
+	KDL::Twist twist(vel,rot);
+	
+	
 	ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain);
-    ChainIkSolverVel_pinv iksolver = ChainIkSolverVel_pinv(chain);
-    //*
-    std::cout << numberOfJoints << std::endl;
-    jointpositions(0) =  jointAngle.at(0) + (-169.0 * DEG_2_RAD);
-    jointpositions(1) =  jointAngle.at(1) + (-65.0 - 90.0) * DEG_2_RAD;
-    jointpositions(2) =  jointAngle.at(2) + 146.0 * DEG_2_RAD;
-    jointpositions(3) =  jointAngle.at(3) + (-102.5 - 90.0) * DEG_2_RAD;
-    jointpositions(4) =  jointAngle.at(4) + 167.0 * DEG_2_RAD;
-    //*/
+    ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(chain);
     
-    // Create the frame that will contain the results
-    KDL::Frame cartpos;    
- 
-    // Calculate forward position kinematics
-    bool kinematics_status;
-    kinematics_status = fksolver.JntToCart(jointpositions,cartpos);
-    if(kinematics_status>=0) {
-        std::cout << cartpos <<std::endl;
-        std::cout << "Succes, thanks KDL!"<< std::endl;
-    }
-    else {
-        std::cout << "Error: could not calculate forward kinematics :(" << std::endl;
-    }
-    
-    //iksolver.CartToJnt(jointpositions, , output);
+    KDL::JntArray jntArray(chain.getNrOfJoints());
+    iksolver.CartToJnt(jointpositions , twist, jntArray);
+    //std::cout << "ik solver result: " << jntArray(0) <<" "<< jntArray(1)<<" "<<jntArray(2)<<" "<<jntArray(3)<<" "<<jntArray(4)<<" "<<std::endl;
+    for (unsigned short i = 0; i < numberOfJoints; i++) {
+		jointVelocity.push_back(jntArray(i));
+		//std::cout << jointVelocity.at(i) << " ";
+	}
+	//std::cout << std::endl;
 }

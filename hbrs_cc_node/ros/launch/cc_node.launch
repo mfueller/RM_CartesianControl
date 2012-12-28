@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <launch>
+	<include file="$(find youbot_description)/launch/youbot_publisher.launch" />
     <node pkg="hbrs_cc_node" type="cc_node" name="hbrs_cc_node" output="screen">
         <param name="my_param" type="double" value="1.5" />
     </node>
     <node pkg="hbrs_joystick_wrapper" type="teleop_joy_wrapper" name="hbrs_joystick_wrapper" output="screen" />
     <node pkg="joy" type="joy_node" name="joy_node" output="screen" />
-    <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen"/>
+    <!-- <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen"/> -->
 		
 </launch>

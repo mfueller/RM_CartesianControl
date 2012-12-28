@@ -13,7 +13,7 @@
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainiksolvervel_pinv.hpp>
+#include <kdl/chainiksolvervel_pinv_givens.hpp>
 #include <kdl/frames_io.hpp>
 #include <stdio.h>
 #include <iostream>
@@ -31,6 +31,6 @@ public:
 	
 	Hbrs_ik_solver();
 	~Hbrs_ik_solver();
-	int fkSolver();
+	void solver(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double> &);
 };
 #endif /* HBRS_IK_SOLVER_H_ */

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include "hbrs_ik_solver.h"
 
 
 
@@ -27,7 +28,7 @@ public:
 	Hbrs_cc_Library(std::string);
 	~Hbrs_cc_Library();
 	std::vector<double> ikSolver(Hbrs_twist , std::vector<double>);
-	std::vector<double> getJointVelocity(Hbrs_twist);
+	void getJointVelocity(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double> &);
 	//internal function
 	// 1. calculate the new joint position from old joint position, joint velocity and time step
 	// 2. singularity and limit checking for joint

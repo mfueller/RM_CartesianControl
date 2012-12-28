@@ -4,6 +4,7 @@ project(RM_CC)
 link_directories(/usr/local/lib /usr/local/include)
 
 include (${PROJECT_SOURCE_DIR}/config/FindPkgConfig.cmake)
+include (${PROJECT_SOURCE_DIR}/config/FindEigen.cmake)
 ## Find KDL
 set( KDL_INSTALL ${CMAKE_INSTALL_PREFIX} CACHE PATH "The KDL installation directory.")
 include (${PROJECT_SOURCE_DIR}/config/FindKDL.cmake)

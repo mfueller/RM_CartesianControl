@@ -13,10 +13,9 @@ Hbrs_cc_Library::~Hbrs_cc_Library()
 }
 
 
-std::vector<double> Hbrs_cc_Library::getJointVelocity(Hbrs_twist) {
-	
-	std::vector<double> jointVelocities;
-	return jointVelocities;
+void Hbrs_cc_Library::getJointVelocity(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity) {
+	Hbrs_ik_solver ik_solver;
+	ik_solver.solver(jointPosition, transVel, rotVel, jointVelocity);
 }
 
 

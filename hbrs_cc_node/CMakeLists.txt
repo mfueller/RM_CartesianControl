@@ -35,13 +35,25 @@ include_directories(
    ${PROJECT_SOURCE_DIR}/ros/include
 )
 
+include (${PROJECT_SOURCE_DIR}/config/FindPkgConfig.cmake)
+include (${PROJECT_SOURCE_DIR}/config/FindEigen.cmake)
+## Find KDL
+set( KDL_INSTALL ${CMAKE_INSTALL_PREFIX} CACHE PATH "The KDL installation directory.")
+include (${PROJECT_SOURCE_DIR}/config/FindKDL.cmake)
+
 #compile the class(es) into a library
 rosbuild_add_library(my_functionality_lib common/src/my_functional_class.cpp)
 
 #create an executable for your ros node
 rosbuild_add_executable(cc_node ros/nodes/cc_node.cpp)
 
+include_directories(${PROJECT_SOURCE_DIR}/../hbrs_cc_library/common/include)
+include_directories(${PROJECT_SOURCE_DIR}/../hbrs_ik_solver/common/include)
+add_library(hbrs_cc_library ../hbrs_cc_library/common/src/hbrs_cc_library.cpp)
+add_library(hbrs_ik_solver ../hbrs_ik_solver/common/src/hbrs_ik_solver.cpp)
+#add_library(hbrs_ik_solver common/src/hbrs_ik_solver.cpp)
+
 #link a executable against the previously created library
-target_link_libraries(cc_node my_functionality_lib)
+target_link_libraries(cc_node my_functionality_lib hbrs_cc_library hbrs_ik_solver)
 
 
