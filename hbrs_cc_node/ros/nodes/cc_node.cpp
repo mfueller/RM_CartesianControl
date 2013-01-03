@@ -85,9 +85,7 @@ int main(int argc, char **argv)
 	node_input =nh.subscribe<geometry_msgs::Twist>("/cc_node/CartesianParameters", 1000, joystickCallback);
 	jointState =nh.subscribe<sensor_msgs::JointState>("/joint_states", 1000, jointStateCallback);
 	// get values for joint_value and store it into joint_velocities[i]
-	
-	//std::vector<double> joint_velocities(5);
-	//brics_actuator::JointVelocities joint_velocities_msg;
+
 	//put in function name 
 	
     Hbrs_cc_Library hbrs_cc_lib("");
