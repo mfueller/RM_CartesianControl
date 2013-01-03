@@ -18,7 +18,6 @@
 
 const double lower_treshold = -0.15;
 const double upper_treshold = 0.15;
-const double velocity = 0.0001;
 
 class Teleop_joy_wrapper
 {

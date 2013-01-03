@@ -48,10 +48,7 @@ void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<doubl
     
     KDL::JntArray jntArray(chain.getNrOfJoints());
     iksolver.CartToJnt(jointpositions , twist, jntArray);
-    //std::cout << "ik solver result: " << jntArray(0) <<" "<< jntArray(1)<<" "<<jntArray(2)<<" "<<jntArray(3)<<" "<<jntArray(4)<<" "<<std::endl;
     for (unsigned short i = 0; i < numberOfJoints; i++) {
 		jointVelocity.push_back(jntArray(i));
-		//std::cout << jointVelocity.at(i) << " ";
 	}
-	//std::cout << std::endl;
 }

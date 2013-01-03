@@ -14,21 +14,21 @@ void Teleop_joy_wrapper::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 	twist.linear.x = 0.0; 
   } 
   else { 
-	twist.linear.x = joy->buttons[BUTTON7] * velocity * joy->axes[0];
+	twist.linear.x = joy->buttons[BUTTON7]* joy->axes[0];
   }
   
   if( joy->axes[1] > lower_treshold && joy->axes[1] < upper_treshold ) { 
 	twist.linear.y = 0.0; 
   } 
   else {
-	twist.linear.y = joy->buttons[BUTTON7] * velocity * joy->axes[1];
+	twist.linear.y = joy->buttons[BUTTON7]* joy->axes[1];
   }
   
   if( joy->axes[3] > lower_treshold && joy->axes[3] < upper_treshold ) { 
 	twist.linear.z = 0.0; 
   } 
   else {
-	twist.linear.z = joy->buttons[BUTTON7] * velocity * joy->axes[3];
+	twist.linear.z = joy->buttons[BUTTON7]* joy->axes[3];
   }
   
   twist.angular.x = 0.0;
@@ -45,7 +45,7 @@ void Teleop_joy_wrapper::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "joy_wrapper");
-	Teleop_joy_wrapper test;
+	Teleop_joy_wrapper joy_wrapper;
 	while(ros::ok()) {	
 		ros::spin();
 	}
