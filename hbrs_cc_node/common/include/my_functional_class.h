@@ -19,7 +19,6 @@ public:
     /* example function which does your main computation */
     brics_actuator::JointVelocities generateArmMsg(std::vector<double>);
     std::vector<double> getJointVelocities();
-    bool jointLimitChecker(sensor_msgs::JointState, double offset);
 };
 
 

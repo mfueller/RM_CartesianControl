@@ -50,23 +50,3 @@ std::vector<double> MyFunctionalClass::getJointVelocities()
 	std::vector<double> my_data(5);
     return my_data;
 }
-
-bool MyFunctionalClass::jointLimitChecker(sensor_msgs::JointState joint_state , double offset) {
-	// The third joint value switched, because of negative sign
-	double jointMinLimit[5] = {0.000891336 , 0.0000727539 , -5.18122 , 0.00166331 , 0.000929437};
-    double jointMaxLimit[5] = {5.89556 , 2.70532 , -0.00116239 , 3.56719 , 5.8388};
-     /* Degree * (PI / 180)*/
-    double jointLimitOffset = offset * (M_PI / 180.0);
-    
-    int jointNumber = 0;
-	for (unsigned short i=8; i<13; i++) {
-		std::cout << joint_state.position.at(i) << " , ";
-		if (joint_state.position.at(i) < jointMinLimit[jointNumber] + jointLimitOffset || joint_state.position.at(i) > jointMaxLimit[jointNumber] - jointLimitOffset) {
-			std::cout << "\nJoint [" << jointNumber + 1 << "] is at its limit"<< std::endl;
-			return false;
-		} 
-		jointNumber++;
-	}
-	std::cout << std::endl;
-	return true;
-}

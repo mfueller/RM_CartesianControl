@@ -29,13 +29,16 @@ public:
 	~Hbrs_cc_Library();
 	std::vector<double> ikSolver(Hbrs_twist , std::vector<double>);
 	void getJointVelocity(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double> &);
-	//internal function
-	// 1. calculate the new joint position from old joint position, joint velocity and time step
-	// 2. singularity and limit checking for joint
-	// 3. reading arm description from file and set it in a structure
-	// 4. 
-	
-	
+	void jointVelocityNormalizer(std::vector<double> &);
+	void jointLimitAdaptor(std::vector<double>, std::vector<double> &);
+private:
+	// 0.01 is the youbot max velocity ,       remember to make it general for other robots too
+	double maxJointVelocity;
+	//double jointMinLimit[];
+	//double jointMaxLimit[];
+	double softJointLimit;
+	double hardJointLimit;
+	double softLimitFactor;
 };
 
 

@@ -11,7 +11,8 @@ Hbrs_ik_solver::Hbrs_ik_solver()
     chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.155, 0.0, 0.0, 0.0)));
     chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.135, 0.0, 0.0, 0.0)));
     chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI / 2.0, 0.0, 0.0)));
-    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI, -0.218, 0.0)));    
+    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, 0.0, 0, 0.0)));
+    //chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI, 0, 0.0)));    
  
     // Create joint array
     numberOfJoints = chain.getNrOfJoints();
@@ -41,10 +42,11 @@ void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<doubl
 	}
 	
 	KDL::Twist twist(vel,rot);
-	
+	std::cout << vel[0] << " , " << vel[1] << " , " << vel[2] << " , " << rot[0] << " , " << rot[1] << " , " << rot[2] << std::endl;
 	
 	ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain);
-    ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(chain);
+    //ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(chain);
+    ChainIkSolverVel_wdls iksolver = ChainIkSolverVel_wdls(chain);
     
     KDL::JntArray jntArray(chain.getNrOfJoints());
     iksolver.CartToJnt(jointpositions , twist, jntArray);

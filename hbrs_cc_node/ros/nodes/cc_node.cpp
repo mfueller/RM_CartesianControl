@@ -67,7 +67,6 @@ int main(int argc, char **argv)
     /* create a loop rate to let your node run only with maximum frequency, here 2Hz */
 	ros::Rate loop_rate(2);
 	ros::Rate rate(20); //Hz
-	double velocity = 0.005;
 	
 	// subscribe to topic published by joypad
 	
@@ -91,30 +90,18 @@ int main(int argc, char **argv)
     Hbrs_cc_Library hbrs_cc_lib("");
     
     int firstLoop = 0;
+    bool keepArm = false;
     
 	while (ros::ok()) {
 		if(firstLoop++ < 10)
 		{
-			armJointPositions[0].joint_uri =  "arm_joint_1";
-			armJointPositions[0].value = 5.0 * (M_PI / 180.0);
-			armJointPositions[0].unit = boost::units::to_string(boost::units::si::radians);
-			std::cout << "Joint " << armJointPositions[0].joint_uri << " = " << armJointPositions[0].value << " " << armJointPositions[0].unit << std::endl;
-			
-			armJointPositions[1].joint_uri =  "arm_joint_2";
-			armJointPositions[1].value = 5.0 * (M_PI / 180.0);
-			armJointPositions[1].unit = boost::units::to_string(boost::units::si::radians);
-			
-			armJointPositions[2].joint_uri =  "arm_joint_3";
-			armJointPositions[2].value = -5.0 * (M_PI / 180.0);
-			armJointPositions[2].unit = boost::units::to_string(boost::units::si::radians);
-			
-			armJointPositions[3].joint_uri =  "arm_joint_4";
-			armJointPositions[3].value = 5.0 * (M_PI / 180.0);
-			armJointPositions[3].unit = boost::units::to_string(boost::units::si::radians);
-			
-			armJointPositions[4].joint_uri =  "arm_joint_5";
-			armJointPositions[4].value = 5.0 * (M_PI / 180.0);
-			armJointPositions[4].unit = boost::units::to_string(boost::units::si::radians);
+			for(unsigned short i = 0 ; i < 5 ; i++){
+				std::stringstream jointName;
+				jointName << "arm_joint_" << (i+1);
+				armJointPositions.at(i).joint_uri =  jointName.str();
+				armJointPositions.at(i).value = 55.0 * (M_PI / 180.0);
+				armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
+			}
 			
 			positionCommand.positions = armJointPositions;
 			armPositionsPublisher.publish(positionCommand);
@@ -126,27 +113,19 @@ int main(int argc, char **argv)
 			for (unsigned short i = 8; i < 13; i++) {
 				jointPosition.push_back(joint_state.position[i]);
 			}
-			
-			// check limits and if one is out of limit set all velocity to zero
-			if (!my_func_class.jointLimitChecker(joint_state, 2.0)) {
-				velocity = 0.0;	
-			} 
-			else if(!my_func_class.jointLimitChecker(joint_state, 10.0)) {
-				velocity = 0.001;
-			}
-			else velocity = 0.005;
 		
 	
-			transVel.push_back(cartesian_pose.linear.x * velocity);
-			transVel.push_back(cartesian_pose.linear.y * velocity);
-			transVel.push_back(cartesian_pose.linear.z * velocity);
+			transVel.push_back(cartesian_pose.linear.x );
+			transVel.push_back(cartesian_pose.linear.y );
+			transVel.push_back(cartesian_pose.linear.z );
+			//transVel.push_back(0.0 );
+			//transVel.push_back(1.0 );
+			//transVel.push_back(0.0 );
 			rotVel.push_back(cartesian_pose.angular.x);
 			rotVel.push_back(cartesian_pose.angular.y);
 			rotVel.push_back(cartesian_pose.angular.z);
 		
 			hbrs_cc_lib.getJointVelocity(jointPosition, transVel, rotVel, jointVelocity);
-			
-			
 			
 			brics_actuator::JointVelocities command;
 			std::vector <brics_actuator::JointValue> setPoints;
@@ -162,15 +141,33 @@ int main(int argc, char **argv)
 				setPoints[i].value = jointVelocity.at(i);
 
 				setPoints[i].unit = boost::units::to_string(boost::units::si::radian_per_second);
-				std::cout << "Joint " << setPoints[i].joint_uri << " = " << setPoints[i].value << " " << setPoints[i].unit << std::endl;
+				//std::cout << "Joint " << setPoints[i].joint_uri << " = " << setPoints[i].value << " " << setPoints[i].unit << " , ";
 			}
+			std::cout << std::endl;
+			std::cout << std::endl;
 			
 			command.velocities = setPoints;
 			youbot_arm_joint_vel_cmd_pub.publish(command);
 
 			jointCallBack = false;
-			joyCallBack = false;	
-		}
+			joyCallBack = false;
+			keepArm = true;	
+		} /*
+		else if(keepArm){
+			for(unsigned short i = 0 ; i < 5 ; i++){
+				std::stringstream jointName;
+				jointName << "arm_joint_" << (i+1);
+				armJointPositions.at(i).joint_uri =  jointName.str();
+				armJointPositions.at(i).value = joint_state.position[i+8];
+				armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
+				
+				std::cout << joint_state.position[i+8] <<" , ";
+			}
+			keepArm = false;
+			std::cout << std::endl;
+			positionCommand.positions = armJointPositions;
+			armPositionsPublisher.publish(positionCommand);
+		} */
 		ros::spinOnce();
 
         /* wait to ensure that is not running than the predefined loop rate */
