@@ -7,11 +7,11 @@ Hbrs_ik_solver::Hbrs_ik_solver()
     
     // youbot chain with our DH parameters from the RM lecture compared with matlab toolbox
     chain.addSegment(Segment(Joint(Joint::None), Frame::DH(0.167, M_PI , 0.161, 0.0)));
-    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.033, M_PI / 2.0 , 0.0, 0.0)));
+    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.033, (M_PI / 2.0) , 0.0, 0.0)));
     chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.155, 0.0, 0.0, 0.0)));
     chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.135, 0.0, 0.0, 0.0)));
-    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI / 2.0, 0.0, 0.0)));
-    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, 0.0, 0, 0.0)));
+    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, (M_PI / 2.0), 0.0, 0.0)));
+    chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI, 0, 0.0)));
     //chain.addSegment(Segment(Joint(Joint::RotZ), Frame::DH(0.0, M_PI, 0, 0.0)));    
  
     // Create joint array
@@ -31,7 +31,7 @@ Hbrs_ik_solver::~Hbrs_ik_solver()
     /* clean up here */
 }
  
-using namespace KDL;
+
  
 void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity)
 {
@@ -42,11 +42,12 @@ void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<doubl
 	}
 	
 	KDL::Twist twist(vel,rot);
+	std::cout << "twist" << std::endl;
 	std::cout << vel[0] << " , " << vel[1] << " , " << vel[2] << " , " << rot[0] << " , " << rot[1] << " , " << rot[2] << std::endl;
 	
 	ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain);
-    //ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(chain);
-    ChainIkSolverVel_wdls iksolver = ChainIkSolverVel_wdls(chain);
+    ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(chain);
+    //ChainIkSolverVel_wdls iksolver = ChainIkSolverVel_wdls(chain);
     
     KDL::JntArray jntArray(chain.getNrOfJoints());
     iksolver.CartToJnt(jointpositions , twist, jntArray);

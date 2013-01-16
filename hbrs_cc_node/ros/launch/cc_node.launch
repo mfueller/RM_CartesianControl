@@ -2,7 +2,8 @@
 <launch>
 	<include file="$(find youbot_description)/launch/youbot_publisher.launch" /> 
     <node pkg="hbrs_joystick_wrapper" type="teleop_joy_wrapper" name="hbrs_joystick_wrapper" output="screen" />
-    <node pkg="joy" type="joy_node" name="joy_node" output="screen" />
+    <node pkg="joy" type="joy_node" name="joy_node" output="screen">  
+    <rosparam command="load" file="$(find hbrs_cc_node)/config/joy.yaml"/></node> 
     <!-- <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen"/> -->
-	<node pkg="hbrs_cc_node" type="cc_node" name="hbrs_cc_node" output="screen" />	
+	<!-- <node pkg="hbrs_cc_node" type="cc_node" name="hbrs_cc_node" output="screen" />	-->
 </launch>

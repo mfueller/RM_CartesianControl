@@ -13,8 +13,8 @@
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
-//#include <kdl/chainiksolvervel_pinv_givens.hpp>
-#include <kdl/chainiksolvervel_wdls.hpp>
+#include <kdl/chainiksolvervel_pinv_givens.hpp>
+//#include <kdl/chainiksolvervel_wdls.hpp>
 #include <kdl/frames_io.hpp>
 #include <stdio.h>
 #include <iostream>
