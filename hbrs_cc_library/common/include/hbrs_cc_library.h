@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <vector>
 #include "hbrs_ik_solver.h"
+#include <kdl/chain.hpp>
 
 
 
@@ -25,8 +26,9 @@ public:
 		std::vector<double> linear;
 		std::vector<double> angular;
 	};
-	Hbrs_cc_Library(std::string);
+	Hbrs_cc_Library(KDL::Chain&);
 	~Hbrs_cc_Library();
+	KDL::Chain ccChain;
 	std::vector<double> ikSolver(Hbrs_twist , std::vector<double>);
 	void getJointVelocity(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double> &);
 	void jointVelocityNormalizer(std::vector<double> &);
@@ -39,6 +41,7 @@ private:
 	double softJointLimit;
 	double hardJointLimit;
 	double softLimitFactor;
+	Hbrs_ik_solver* ik_solver;
 };
 
 

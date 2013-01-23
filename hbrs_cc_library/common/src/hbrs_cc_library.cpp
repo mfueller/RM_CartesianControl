@@ -1,12 +1,14 @@
 #include "hbrs_cc_library.h"
 
 
-Hbrs_cc_Library::Hbrs_cc_Library(std::string armDescriptionFile)
+Hbrs_cc_Library::Hbrs_cc_Library(KDL::Chain& chain)
 {
-    maxJointVelocity = 0.01;
+    maxJointVelocity = 0.1;
     softJointLimit = 10.0 * (M_PI / 180.0);
 	hardJointLimit = 2.0 * (M_PI / 180.0);
 	softLimitFactor = 10.0;
+	ccChain = chain;
+	ik_solver = new Hbrs_ik_solver(ccChain);
 }
 
 Hbrs_cc_Library::~Hbrs_cc_Library()
@@ -16,16 +18,9 @@ Hbrs_cc_Library::~Hbrs_cc_Library()
 
 
 void Hbrs_cc_Library::getJointVelocity(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity) {
-	Hbrs_ik_solver ik_solver;
-	if (transVel.at(0) == 0.0 && transVel.at(1) == 0.0 && transVel.at(2) == 0.0) {
-		jointVelocity.clear();
-		jointVelocity.assign(5, 0.0);
-	}
-	else {
-		ik_solver.solver(jointPosition, transVel, rotVel, jointVelocity);
-		jointVelocityNormalizer(jointVelocity);
-		jointLimitAdaptor(jointPosition, jointVelocity);
-	}
+	ik_solver->solver(jointPosition, transVel, rotVel, jointVelocity);
+	jointVelocityNormalizer(jointVelocity);
+	jointLimitAdaptor(jointPosition, jointVelocity);
 }
 
 void Hbrs_cc_Library::jointVelocityNormalizer(std::vector<double> &jointVelocity){

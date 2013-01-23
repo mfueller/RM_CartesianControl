@@ -33,7 +33,7 @@ brics_actuator::JointVelocities MyFunctionalClass::generateArmMsg(std::vector<do
 	joint_names[3] = "arm_joint_4";
 	joint_names[4] = "arm_joint_5";
 	 
-	for (int i=0;i<5;i++) { 
+	for (int i=0 ; i < joint_velocity_value.size() ; i++) { 
 		brics_joint_value[i].joint_uri = joint_names[i];
 		brics_joint_value[i].value = joint_velocity_value[i];
 		brics_joint_value[i].unit = "rad"; // TODO set the right unit  

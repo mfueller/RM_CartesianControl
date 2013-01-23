@@ -46,14 +46,18 @@ rosbuild_add_library(my_functionality_lib common/src/my_functional_class.cpp)
 
 #create an executable for your ros node
 rosbuild_add_executable(cc_node ros/nodes/cc_node.cpp)
+#rosbuild_add_link_flags(cc_node -lWatchdog)
 
 include_directories(${PROJECT_SOURCE_DIR}/../hbrs_cc_library/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/../hbrs_ik_solver/common/include)
+
 add_library(hbrs_cc_library ../hbrs_cc_library/common/src/hbrs_cc_library.cpp)
 add_library(hbrs_ik_solver ../hbrs_ik_solver/common/src/hbrs_ik_solver.cpp)
+add_library(ros_urdf_loader ../hbrs_ik_solver/common/src/ros_urdf_loader.cpp)
 #add_library(hbrs_ik_solver common/src/hbrs_ik_solver.cpp)
 
 #link a executable against the previously created library
-target_link_libraries(cc_node my_functionality_lib hbrs_cc_library hbrs_ik_solver)
+target_link_libraries(cc_node my_functionality_lib hbrs_cc_library hbrs_ik_solver ros_urdf_loader tinyxml)
+
 
 

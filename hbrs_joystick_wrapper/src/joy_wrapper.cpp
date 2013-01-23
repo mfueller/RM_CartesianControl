@@ -10,30 +10,13 @@ void Teleop_joy_wrapper::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 { 	
   geometry_msgs::Twist twist;	
   
-  if( joy->axes[0] > lower_treshold && joy->axes[0] < upper_treshold) { 
-	twist.linear.x = 0.0; 
-  } 
-  else { 
-	twist.linear.x = joy->buttons[BUTTON7]* joy->axes[0];
-  }
-  
-  if( joy->axes[1] > lower_treshold && joy->axes[1] < upper_treshold ) { 
-	twist.linear.y = 0.0; 
-  } 
-  else {
-	twist.linear.y = joy->buttons[BUTTON7]* joy->axes[1];
-  }
-  
-  if( joy->axes[3] > lower_treshold && joy->axes[3] < upper_treshold ) { 
-	twist.linear.z = 0.0; 
-  } 
-  else {
-	twist.linear.z = joy->buttons[BUTTON7]* joy->axes[3];
-  }
-  
-  twist.angular.x = 0.0;
-  twist.angular.y = 0.0;
-  twist.angular.z = 0.0;
+  twist.linear.x = joy->buttons[BUTTON7]* joy->axes[0];
+  twist.linear.y = joy->buttons[BUTTON7]* joy->axes[1];
+  twist.linear.z = joy->buttons[BUTTON7]* joy->axes[3];
+   
+  twist.angular.x = joy->buttons[BUTTON7]* joy->axes[5];
+  twist.angular.y = joy->buttons[BUTTON7]* joy->axes[4];
+  twist.angular.z = joy->buttons[BUTTON7]* joy->axes[2];
     //std::vector<double> angular = {x_ang_vel, y_ang_vel, z_ang_vel};
   
   

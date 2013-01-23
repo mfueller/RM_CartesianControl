@@ -16,6 +16,10 @@
   <depend package="geometry_msgs" />
   <depend package="hbrs_joystick_wrapper" /> 
   <depend package="robot_state_publisher" />
+  <depend package="urdf" />
+  <depend package="kdl_parser" />
+  <depend package="eigen_conversions" />
+  <!-- <depend package="watchdog_timer" /> -->
   
 
 </package>

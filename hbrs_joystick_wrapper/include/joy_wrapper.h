@@ -16,8 +16,8 @@
 #define BUTTON11 10
 #define BUTTON12 11
 
-const double lower_treshold = -0.15;
-const double upper_treshold = 0.15;
+const double lower_treshold = 0.0;//-0.15;
+const double upper_treshold = 0.0; //0.15;
 
 class Teleop_joy_wrapper
 {

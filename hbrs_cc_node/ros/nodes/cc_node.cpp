@@ -27,9 +27,13 @@
 #include <boost/units/systems/angle/degrees.hpp>
 #include <boost/units/conversion.hpp>
 
+//#include <tf/transform_listener.h>
+#include <kdl/chain.hpp>
+#include "ros_urdf_loader.h" 
+
 sensor_msgs::JointState joint_state;
 geometry_msgs::Twist cartesian_pose;
-bool jointCallBack = false, joyCallBack = false;
+ros::Time processTime;
 
 bool serviceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
     std::cout << "service call triggered" << std::endl;    
@@ -41,15 +45,13 @@ bool serviceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &r
 void joystickCallback(const geometry_msgs::Twist::ConstPtr& cartesianPose) {
 	
 	cartesian_pose = *cartesianPose;
-	joyCallBack = true;
-	
+	processTime = ros::Time::now();	
 }
 
 // List of joint angles 
 //*
 void jointStateCallback(const sensor_msgs::JointState::ConstPtr& jointState) {
 	joint_state = *jointState;
-	jointCallBack = true;
 }
 //*/
 
@@ -65,8 +67,8 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
 	
     /* create a loop rate to let your node run only with maximum frequency, here 2Hz */
-	ros::Rate loop_rate(2);
-	ros::Rate rate(20); //Hz
+	ros::Rate loop_rate(20);
+	ros::Rate rate(2); //Hz
 	
 	// subscribe to topic published by joypad
 	
@@ -81,25 +83,66 @@ int main(int argc, char **argv)
 	armJointPositions.resize(5);
 	
 	ros::Subscriber joy_sub, node_input, jointState;
-	node_input =nh.subscribe<geometry_msgs::Twist>("/cc_node/CartesianParameters", 1000, joystickCallback);
-	jointState =nh.subscribe<sensor_msgs::JointState>("/joint_states", 1000, jointStateCallback);
-	// get values for joint_value and store it into joint_velocities[i]
-
-	//put in function name 
+	node_input =nh.subscribe<geometry_msgs::Twist>("/cc_node/CartesianParameters", 1, joystickCallback);
+	jointState =nh.subscribe<sensor_msgs::JointState>("/joint_states", 1, jointStateCallback);
+	 
+    arm_cc::ROS_URDF_Loader robot_description;
+    std::vector<boost::shared_ptr<urdf::JointLimits> > jointlimits;
+    KDL::Chain chain;
+    robot_description.loadModel(nh, "arm_link_0", "arm_link_5", chain, jointlimits);
 	
-    Hbrs_cc_Library hbrs_cc_lib("");
+	//Watchdog ccWatchdog("hbrs_cc_watchdog",ros::Duration(10));
+	
+	//tf::TransformListener listener;
+	
+    Hbrs_cc_Library hbrs_cc_lib(chain);
     
     int firstLoop = 0;
-    bool keepArm = false;
+    double jointAngle[] = {170.0, 50.0, -50.0, 100.0, 83.0};
+    
+    std::vector<double> jointPosition;
+    std::vector<double> transVel, rotVel, jointVelocity;
+    ros::Duration watchdogTime(1.0);
+    std::stringstream armName;
     
 	while (ros::ok()) {
+		jointPosition.clear();
+		ros::spinOnce();
+		if(ros::Time::now() - processTime >  watchdogTime)
+		{
+			for (unsigned short i = 0; i < joint_state.name.size(); i++) {
+				for(unsigned short j = 0; j < 5 ; j++){
+					armName.str("");
+					armName << "arm_joint_" << j+1;
+					if(joint_state.name[i].compare(armName.str()) == 0 ){
+						
+						jointPosition.push_back(joint_state.position[i]);
+						break;
+					}
+				}		
+			}
+			for(unsigned short i = 0 ; i < 5 ; i++){
+				std::stringstream jointName;
+				jointName << "arm_joint_" << (i+1);
+				armJointPositions.at(i).joint_uri =  jointName.str();
+				armJointPositions.at(i).value = jointPosition[i];
+				armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
+			}
+			
+			positionCommand.positions = armJointPositions;
+			armPositionsPublisher.publish(positionCommand);
+			rate.sleep();
+			std::cout << " Watchdog: No Joystick callback "<< std::endl;
+			exit(-1);
+		}
+
 		if(firstLoop++ < 10)
 		{
 			for(unsigned short i = 0 ; i < 5 ; i++){
 				std::stringstream jointName;
 				jointName << "arm_joint_" << (i+1);
 				armJointPositions.at(i).joint_uri =  jointName.str();
-				armJointPositions.at(i).value = 55.0 * (M_PI / 180.0);
+				armJointPositions.at(i).value = jointAngle[i] * (M_PI / 180.0);
 				armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
 			}
 			
@@ -107,23 +150,33 @@ int main(int argc, char **argv)
 			armPositionsPublisher.publish(positionCommand);
 			rate.sleep();
 		}	
-		else if(jointCallBack && joyCallBack)
+		else
 		{	
-			std::vector<double> jointPosition, transVel, rotVel, jointVelocity;
-			for (unsigned short i = 8; i < 13; i++) {
-				jointPosition.push_back(joint_state.position[i]);
+			transVel.clear();
+			rotVel.clear(); 
+			jointVelocity.clear();
+			
+			for (unsigned short i = 0; i < joint_state.name.size(); i++) {
+				for(unsigned short j = 0; j < 5 ; j++){
+					armName.str("");
+					armName << "arm_joint_" << j+1;
+					if(joint_state.name[i].compare(armName.str()) == 0 ){
+						
+						jointPosition.push_back(joint_state.position[i]);
+						break;
+					}
+				}		
 			}
-		
-	
-			transVel.push_back(cartesian_pose.linear.x );
-			transVel.push_back(cartesian_pose.linear.y );
-			transVel.push_back(cartesian_pose.linear.z );
+			
+			transVel.push_back(cartesian_pose.linear.y * 0.005);
+			transVel.push_back(cartesian_pose.linear.x * 0.005);
+			transVel.push_back(cartesian_pose.linear.z * 0.005);
 			//transVel.push_back(0.0 );
 			//transVel.push_back(1.0 );
 			//transVel.push_back(0.0 );
-			rotVel.push_back(cartesian_pose.angular.x);
-			rotVel.push_back(cartesian_pose.angular.y);
-			rotVel.push_back(cartesian_pose.angular.z);
+			rotVel.push_back(cartesian_pose.angular.x * 0.05);
+			rotVel.push_back(cartesian_pose.angular.y * 0.05);
+			rotVel.push_back(cartesian_pose.angular.z * 0.05);
 		
 			hbrs_cc_lib.getJointVelocity(jointPosition, transVel, rotVel, jointVelocity);
 			
@@ -141,38 +194,22 @@ int main(int argc, char **argv)
 				setPoints[i].value = jointVelocity.at(i);
 
 				setPoints[i].unit = boost::units::to_string(boost::units::si::radian_per_second);
-				//std::cout << "Joint " << setPoints[i].joint_uri << " = " << setPoints[i].value << " " << setPoints[i].unit << " , ";
+				//std::cout << "Joint " << setPoints[i].joint_uri << " = " << setPoints[i].value << std::endl;
 			}
-			std::cout << std::endl;
-			std::cout << std::endl;
 			
 			command.velocities = setPoints;
 			youbot_arm_joint_vel_cmd_pub.publish(command);
-
-			jointCallBack = false;
-			joyCallBack = false;
-			keepArm = true;	
-		} /*
-		else if(keepArm){
-			for(unsigned short i = 0 ; i < 5 ; i++){
-				std::stringstream jointName;
-				jointName << "arm_joint_" << (i+1);
-				armJointPositions.at(i).joint_uri =  jointName.str();
-				armJointPositions.at(i).value = joint_state.position[i+8];
-				armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
-				
-				std::cout << joint_state.position[i+8] <<" , ";
-			}
-			keepArm = false;
-			std::cout << std::endl;
-			positionCommand.positions = armJointPositions;
-			armPositionsPublisher.publish(positionCommand);
-		} */
-		ros::spinOnce();
-
-        /* wait to ensure that is not running than the predefined loop rate */
+		}
 		loop_rate.sleep();
 	}
-
+	for(unsigned short i = 0 ; i < 5 ; i++){
+		std::stringstream jointName;
+		jointName << "arm_joint_" << (i+1);
+		armJointPositions.at(i).joint_uri =  jointName.str();
+		armJointPositions.at(i).value = jointPosition[i];
+		armJointPositions.at(i).unit = boost::units::to_string(boost::units::si::radians);
+	}
+		positionCommand.positions = armJointPositions;
+		armPositionsPublisher.publish(positionCommand);
 	return 0;
 }
