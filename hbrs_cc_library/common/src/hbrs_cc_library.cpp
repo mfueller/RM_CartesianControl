@@ -3,7 +3,7 @@
 
 Hbrs_cc_Library::Hbrs_cc_Library(KDL::Chain& chain)
 {
-    maxJointVelocity = 0.1;
+    maxJointVelocity = 0.2;
     softJointLimit = 10.0 * (M_PI / 180.0);
 	hardJointLimit = 2.0 * (M_PI / 180.0);
 	softLimitFactor = 10.0;
@@ -18,9 +18,15 @@ Hbrs_cc_Library::~Hbrs_cc_Library()
 
 
 void Hbrs_cc_Library::getJointVelocity(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity) {
+	std::cout << "start solver() "<< std::endl;
 	ik_solver->solver(jointPosition, transVel, rotVel, jointVelocity);
+	std::cout << "finish solver() "<< std::endl;
+	std::cout << "start normalizer "<< std::endl;
 	jointVelocityNormalizer(jointVelocity);
+	std::cout << "finish normalizer  "<< std::endl;
+	std::cout << "start adaptor"<< std::endl;
 	jointLimitAdaptor(jointPosition, jointVelocity);
+	std::cout << "finish adaptor "<< std::endl;
 }
 
 void Hbrs_cc_Library::jointVelocityNormalizer(std::vector<double> &jointVelocity){

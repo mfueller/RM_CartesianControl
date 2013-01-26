@@ -34,6 +34,8 @@
 sensor_msgs::JointState joint_state;
 geometry_msgs::Twist cartesian_pose;
 ros::Time processTime;
+bool joyCallBack = false;
+bool jointStateChecket = false;
 
 bool serviceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
     std::cout << "service call triggered" << std::endl;    
@@ -46,12 +48,14 @@ void joystickCallback(const geometry_msgs::Twist::ConstPtr& cartesianPose) {
 	
 	cartesian_pose = *cartesianPose;
 	processTime = ros::Time::now();	
+	joyCallBack = true;
 }
 
 // List of joint angles 
 //*
 void jointStateCallback(const sensor_msgs::JointState::ConstPtr& jointState) {
 	joint_state = *jointState;
+	jointStateChecket = true;
 }
 //*/
 
@@ -59,9 +63,10 @@ void jointStateCallback(const sensor_msgs::JointState::ConstPtr& jointState) {
 
 int main(int argc, char **argv)
 {
-	std::cout << "Run cc_node" << std::endl;
+	int indx = 0;
+	std::cout << "Run cc_node " <<std::endl;
     MyFunctionalClass my_func_class;
-
+	
     /* init ROS node with a name and a node handle*/	
     ros::init(argc, argv, "hbrs_cc_node");
     ros::NodeHandle nh("~");
@@ -69,15 +74,13 @@ int main(int argc, char **argv)
     /* create a loop rate to let your node run only with maximum frequency, here 2Hz */
 	ros::Rate loop_rate(20);
 	ros::Rate rate(2); //Hz
-	
 	// subscribe to topic published by joypad
 	
 	
 	// publish joint velocities to the arm (/arm_1/arm_controller/velocity_command)
-	ros::Publisher youbot_arm_joint_vel_cmd_pub = nh.advertise<brics_actuator::JointVelocities>("/arm_1/arm_controller/velocity_command", 1000);
+	ros::Publisher youbot_arm_joint_vel_cmd_pub = nh.advertise<brics_actuator::JointVelocities>("/arm_1/arm_controller/velocity_command", 1);
+	ros::Publisher armPositionsPublisher = nh.advertise<brics_actuator::JointPositions>("/arm_1/arm_controller/position_command", 1);	
 	
-	
-	ros::Publisher armPositionsPublisher = nh.advertise<brics_actuator::JointPositions>("/arm_1/arm_controller/position_command", 1000);
 	brics_actuator::JointPositions positionCommand;
 	std::vector <brics_actuator::JointValue> armJointPositions;
 	armJointPositions.resize(5);
@@ -96,18 +99,19 @@ int main(int argc, char **argv)
 	//tf::TransformListener listener;
 	
     Hbrs_cc_Library hbrs_cc_lib(chain);
-    
     int firstLoop = 0;
-    double jointAngle[] = {170.0, 50.0, -50.0, 100.0, 83.0};
+    double jointAngle[] = {170.0, 50.0, -50.0, 100.0, 167.5};
     
     std::vector<double> jointPosition;
     std::vector<double> transVel, rotVel, jointVelocity;
     ros::Duration watchdogTime(1.0);
     std::stringstream armName;
     
+    
 	while (ros::ok()) {
 		jointPosition.clear();
 		ros::spinOnce();
+		/*
 		if(ros::Time::now() - processTime >  watchdogTime)
 		{
 			for (unsigned short i = 0; i < joint_state.name.size(); i++) {
@@ -135,7 +139,8 @@ int main(int argc, char **argv)
 			std::cout << " Watchdog: No Joystick callback "<< std::endl;
 			exit(-1);
 		}
-
+		std::cout << "Run cc_node " << indx++ <<std::endl;
+		*/
 		if(firstLoop++ < 10)
 		{
 			for(unsigned short i = 0 ; i < 5 ; i++){
@@ -151,7 +156,9 @@ int main(int argc, char **argv)
 			rate.sleep();
 		}	
 		else
-		{	
+		{
+			while(!jointStateChecket || !joyCallBack)
+			{	}	
 			transVel.clear();
 			rotVel.clear(); 
 			jointVelocity.clear();
@@ -168,24 +175,26 @@ int main(int argc, char **argv)
 				}		
 			}
 			
-			transVel.push_back(cartesian_pose.linear.y * 0.005);
-			transVel.push_back(cartesian_pose.linear.x * 0.005);
-			transVel.push_back(cartesian_pose.linear.z * 0.005);
+			transVel.push_back(cartesian_pose.linear.y );
+			transVel.push_back(cartesian_pose.linear.x );
+			transVel.push_back(cartesian_pose.linear.z );
 			//transVel.push_back(0.0 );
 			//transVel.push_back(1.0 );
 			//transVel.push_back(0.0 );
-			rotVel.push_back(cartesian_pose.angular.x * 0.05);
-			rotVel.push_back(cartesian_pose.angular.y * 0.05);
-			rotVel.push_back(cartesian_pose.angular.z * 0.05);
+			rotVel.push_back(cartesian_pose.angular.x );
+			rotVel.push_back(cartesian_pose.angular.y );
+			rotVel.push_back(cartesian_pose.angular.z );
 		
+			std::cout << "start joint velcity "<< std::endl;
 			hbrs_cc_lib.getJointVelocity(jointPosition, transVel, rotVel, jointVelocity);
+			std::cout << "finish joint velcity "<< std::endl;
 			
 			brics_actuator::JointVelocities command;
 			std::vector <brics_actuator::JointValue> setPoints;
 			setPoints.resize(5);
 			std::stringstream jointName;
 			
-			for (unsigned short i = 0; i < 5; ++i) {
+			for (unsigned short i = 0; i < jointVelocity.size(); ++i) {
 
 				jointName.str("");
 				jointName << "arm_joint_" << (i + 1);

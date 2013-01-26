@@ -42,13 +42,22 @@ Hbrs_ik_solver::~Hbrs_ik_solver()
  
 void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<double> transVel, std::vector<double> rotVel, std::vector<double> &jointVelocity)
 {
+	if (jointPosition.size() != numberOfJoints) {
+		jointVelocity.assign(jointVelocity.size(), 0.0);
+		return;
+	}
 	KDL::Vector vel(transVel.at(0), transVel.at(1), transVel.at(2));
 	KDL::Vector rot(rotVel.at(0), rotVel.at(1), rotVel.at(2));
+	std::cout << "start for loop." << numberOfJoints<< std::endl;
 	for (unsigned short i = 0; i < numberOfJoints; i++) {
 		jointpositions.data[i] = jointPosition.at(i);
 	}
+	std::cout << "finish for loop"<< std::endl;
 	
+	std::cout << "start init KDL twist"<< std::endl;
 	KDL::Twist twist(vel,rot);
+	std::cout << "finish init KDL twist"<< std::endl;
+	
 	std::cout << "Vel , Rot" << std::endl;
 	std::cout << vel[0] << " , " << vel[1] << " , " << vel[2] << " , \n" << rot[0] << " , " << rot[1] << " , " << rot[2] << std::endl;
 	std::cout << "twist" << std::endl;
@@ -56,10 +65,17 @@ void Hbrs_ik_solver::solver(std::vector<double> jointPosition, std::vector<doubl
 	
 	//ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(ikChain);
     //ChainIkSolverVel_pinv_givens iksolver = ChainIkSolverVel_pinv_givens(ikChain);
-    
+    std::cout << "start init JntArray"<< std::endl;
     KDL::JntArray jntArray(ikChain.getNrOfJoints());
+    std::cout << "fiinish init JntArray"<< std::endl;
+    
+    std::cout << "start iksolver->cartToJnt"<< std::endl;
     std::cout << "ik_solver " << iksolver->CartToJnt(jointpositions , twist, jntArray) << std::endl;
+    std::cout << "finish iksolver->cartToJnt"<< std::endl;
+    
+    std::cout << "start push_back"<< std::endl;
     for (unsigned short i = 0; i < numberOfJoints; i++) {
 		jointVelocity.push_back(jntArray(i));
 	}
+	std::cout << "finish push_back"<< std::endl;
 }
